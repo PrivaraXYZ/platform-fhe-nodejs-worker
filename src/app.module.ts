@@ -2,11 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import * as os from 'os';
+import { fheConfig, workerConfig } from '@infrastructure/config';
+import { FheModule } from '@infrastructure/fhe';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [fheConfig, workerConfig],
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
         PORT: Joi.number().default(3000),
@@ -26,6 +29,7 @@ import * as os from 'os';
         FHE_KMS_ADDRESS: Joi.string().default('0xbE0E383937d564D7FF0BC3b46c51f0bF8d5C311A'),
       }),
     }),
+    FheModule,
   ],
 })
 export class AppModule {}
