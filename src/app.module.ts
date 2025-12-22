@@ -4,6 +4,7 @@ import * as Joi from 'joi';
 import * as os from 'os';
 import { fheConfig, workerConfig } from '@infrastructure/config';
 import { FheModule } from '@infrastructure/fhe';
+import { EncryptModule, HealthModule } from '@interface/http';
 
 @Module({
   imports: [
@@ -30,6 +31,8 @@ import { FheModule } from '@infrastructure/fhe';
       }),
     }),
     FheModule,
+    EncryptModule,
+    HealthModule,
   ],
 })
 export class AppModule {}
