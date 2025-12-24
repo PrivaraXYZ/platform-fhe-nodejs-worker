@@ -6,6 +6,7 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
+  "setupFilesAfterEnv": ["<rootDir>/test/e2e/setup.ts"],
   "moduleNameMapper": {
     "^@domain/(.*)$": "<rootDir>/src/domain/$1",
     "^@application/(.*)$": "<rootDir>/src/application/$1",
