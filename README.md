@@ -128,7 +128,7 @@ Uses Piscina for CPU parallelism and fault isolation. Each worker maintains its 
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 24+
 - npm 10+
 
 ### Installation

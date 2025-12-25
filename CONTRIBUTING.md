@@ -6,7 +6,7 @@ Thank you for your interest in contributing!
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 24+
 - npm 10+
 - Docker (optional)
 
