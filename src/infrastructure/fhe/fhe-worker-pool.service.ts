@@ -1,29 +1,22 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { resolve } from 'path';
-import Piscina from 'piscina';
+import { Piscina } from 'piscina';
+import { Result, Ok, Err } from '@domain/common/result';
+import { IFheService, EncryptionResult } from '@domain/fhe/service/fhe.service.interface';
+import { FheConfig } from '@domain/fhe/model/fhe-config';
 import {
-  Result,
-  Ok,
-  Err,
-  IFheService,
-  FHE_SERVICE,
-  EncryptionResult,
-  FheConfig,
   FheDomainError,
   FhevmNotInitializedError,
   FhevmInitializationError,
   EncryptionError,
   EncryptionTimeoutError,
-  InvalidContractAddressError,
-  InvalidUserAddressError,
-  InvalidEncryptionValueError,
   WorkerPoolExhaustedError,
-  EncryptedValue,
-  EthereumAddress,
-  Uint64Value,
-} from '@domain/fhe';
-import { WorkerConfig } from '../config';
+} from '@domain/fhe/error/fhe.error';
+import { EncryptedValue } from '@domain/fhe/value-object/encrypted-value';
+import { EthereumAddress } from '@domain/fhe/value-object/ethereum-address';
+import { Uint64Value } from '@domain/fhe/value-object/uint64-value';
+import { WorkerConfig } from '../config/worker.config';
 
 interface WorkerResult {
   handle: string;
@@ -148,10 +141,7 @@ export class FheWorkerPoolService implements IFheService, OnModuleInit, OnModule
   private validateInputs(
     contractAddress: string,
     userAddress: string,
-  ): Result<
-    { contractAddress: EthereumAddress; userAddress: EthereumAddress },
-    FheDomainError
-  > {
+  ): Result<{ contractAddress: EthereumAddress; userAddress: EthereumAddress }, FheDomainError> {
     const contractResult = EthereumAddress.createContract(contractAddress);
     if (!contractResult.ok) return contractResult;
 

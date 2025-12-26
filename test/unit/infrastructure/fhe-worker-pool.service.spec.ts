@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { FheWorkerPoolService } from '@infrastructure/fhe';
-import { FhevmNotInitializedError } from '@domain/fhe';
+import { FheWorkerPoolService } from '@infrastructure/fhe/fhe-worker-pool.service';
+import { FhevmNotInitializedError } from '@domain/fhe/error/fhe.error';
 
 const mockRun = jest.fn().mockResolvedValue({
   handle: '0xhandle',
@@ -10,19 +10,15 @@ const mockRun = jest.fn().mockResolvedValue({
 });
 const mockDestroy = jest.fn().mockResolvedValue(undefined);
 
-jest.mock('piscina', () => {
-  return {
-    __esModule: true,
-    default: jest.fn().mockImplementation(() => ({
-      run: mockRun,
-      destroy: mockDestroy,
-    })),
-  };
-});
+jest.mock('piscina', () => ({
+  Piscina: jest.fn().mockImplementation(() => ({
+    run: mockRun,
+    destroy: mockDestroy,
+  })),
+}));
 
 describe('FheWorkerPoolService', () => {
   let service: FheWorkerPoolService;
-  let configService: jest.Mocked<ConfigService>;
 
   const validContractAddress = '0x1234567890123456789012345678901234567890';
   const validUserAddress = '0xabcdef0123456789abcdef0123456789abcdef01';
@@ -54,14 +50,10 @@ describe('FheWorkerPoolService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        FheWorkerPoolService,
-        { provide: ConfigService, useValue: mockConfigService },
-      ],
+      providers: [FheWorkerPoolService, { provide: ConfigService, useValue: mockConfigService }],
     }).compile();
 
     service = module.get<FheWorkerPoolService>(FheWorkerPoolService);
-    configService = module.get(ConfigService);
   });
 
   describe('isInitialized', () => {
