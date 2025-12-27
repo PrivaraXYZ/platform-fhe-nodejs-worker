@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { HealthIndicator, HealthIndicatorResult, HealthCheckError } from '@nestjs/terminus';
-import { IFheService, FHE_SERVICE } from '@domain/fhe';
+import { IFheService, FHE_SERVICE } from '@domain/fhe/service/fhe.service.interface';
 
 @Injectable()
 export class FheHealthIndicator extends HealthIndicator {

@@ -1,4 +1,4 @@
-import { FheConfig, DEFAULT_FHE_CONFIG } from '@domain/fhe';
+import { FheConfig, DEFAULT_FHE_CONFIG } from '@domain/fhe/model/fhe-config';
 
 interface ZamaEncryptedInput {
   add64: (value: number | bigint) => ZamaEncryptedInput;
@@ -32,7 +32,8 @@ export interface EncryptResult {
 let fhevmInstance: ZamaFhevmInstance | null = null;
 let sdkModule: ZamaSDK | null = null;
 let initPromise: Promise<void> | null = null;
-const config: FheConfig = DEFAULT_FHE_CONFIG;
+// TODO: Use config when custom network support is added
+const _config: FheConfig = DEFAULT_FHE_CONFIG;
 
 async function ensureInitialized(): Promise<void> {
   if (fhevmInstance) return;
@@ -54,7 +55,12 @@ async function doInitialize(): Promise<void> {
 }
 
 function toHexString(bytes: Uint8Array): string {
-  return '0x' + Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+  return (
+    '0x' +
+    Array.from(bytes)
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('')
+  );
 }
 
 export default async function encrypt(task: EncryptTask): Promise<EncryptResult> {

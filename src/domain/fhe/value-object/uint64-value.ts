@@ -1,5 +1,5 @@
-import { Result, Ok, Err } from '@domain/common';
-import { InvalidEncryptionValueError } from '../error';
+import { Result, Ok, Err } from '@domain/common/result';
+import { InvalidEncryptionValueError } from '../error/fhe.error';
 
 const MAX_UINT64 = BigInt('18446744073709551615');
 
@@ -15,7 +15,9 @@ export class Uint64Value {
       }
 
       if (bigValue > MAX_UINT64) {
-        return Err(new InvalidEncryptionValueError(value, `Value exceeds maximum uint64 (${MAX_UINT64})`));
+        return Err(
+          new InvalidEncryptionValueError(value, `Value exceeds maximum uint64 (${MAX_UINT64})`),
+        );
       }
 
       return Ok(new Uint64Value(bigValue));

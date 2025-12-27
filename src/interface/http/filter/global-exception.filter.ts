@@ -18,7 +18,7 @@ import {
   InvalidEncryptionValueError,
   UnsupportedEncryptionTypeError,
   WorkerPoolExhaustedError,
-} from '@domain/fhe';
+} from '@domain/fhe/error/fhe.error';
 
 interface ProblemDetails {
   type: string;
@@ -62,18 +62,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     return this.handleUnknownError(exception, instance);
   }
 
-  private handleValidationError(
-    exception: BadRequestException,
-    instance: string,
-  ): ProblemDetails {
+  private handleValidationError(exception: BadRequestException, instance: string): ProblemDetails {
     const response = exception.getResponse() as {
       message: string | string[];
       statusCode: number;
     };
 
-    const messages = Array.isArray(response.message)
-      ? response.message
-      : [response.message];
+    const messages = Array.isArray(response.message) ? response.message : [response.message];
 
     return {
       type: 'urn:fhe:error:validation',
@@ -149,10 +144,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       };
     }
 
-    if (
-      error instanceof InvalidContractAddressError ||
-      error instanceof InvalidUserAddressError
-    ) {
+    if (error instanceof InvalidContractAddressError || error instanceof InvalidUserAddressError) {
       return {
         type: 'urn:fhe:error:invalid-address',
         title: 'Invalid Address',

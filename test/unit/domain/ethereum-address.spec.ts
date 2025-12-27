@@ -1,4 +1,5 @@
-import { EthereumAddress, InvalidContractAddressError, InvalidUserAddressError } from '@domain/fhe';
+import { EthereumAddress } from '@domain/fhe/value-object/ethereum-address';
+import { InvalidContractAddressError, InvalidUserAddressError } from '@domain/fhe/error/fhe.error';
 
 describe('EthereumAddress', () => {
   const validAddress = '0x1234567890123456789012345678901234567890';
@@ -91,7 +92,10 @@ describe('EthereumAddress', () => {
 
     it('should return true for same address with different case', () => {
       const result1 = EthereumAddress.create(validAddress.toLowerCase(), 'user');
-      const result2 = EthereumAddress.create(validAddress.toUpperCase().replace('0X', '0x'), 'user');
+      const result2 = EthereumAddress.create(
+        validAddress.toUpperCase().replace('0X', '0x'),
+        'user',
+      );
 
       if (result1.ok && result2.ok) {
         expect(result1.value.equals(result2.value)).toBe(true);

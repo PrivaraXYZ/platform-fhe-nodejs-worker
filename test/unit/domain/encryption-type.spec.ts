@@ -1,4 +1,5 @@
-import { EncryptionType, UnsupportedEncryptionTypeError } from '@domain/fhe';
+import { EncryptionType } from '@domain/fhe/value-object/encryption-type';
+import { UnsupportedEncryptionTypeError } from '@domain/fhe/error/fhe.error';
 
 describe('EncryptionType', () => {
   describe('fromString', () => {

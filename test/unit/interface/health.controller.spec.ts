@@ -1,13 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HealthCheckService, HealthCheckError } from '@nestjs/terminus';
-import { HealthController, FheHealthIndicator } from '@interface/http/health';
-import { IFheService, FHE_SERVICE } from '@domain/fhe';
+import { HealthController } from '@interface/http/health/health.controller';
+import { FheHealthIndicator } from '@interface/http/health/fhe.health';
+import { IFheService, FHE_SERVICE } from '@domain/fhe/service/fhe.service.interface';
 
 describe('HealthController', () => {
   let controller: HealthController;
   let healthCheckService: jest.Mocked<HealthCheckService>;
-  let fheHealthIndicator: FheHealthIndicator;
-  let fheService: jest.Mocked<IFheService>;
 
   beforeEach(async () => {
     const mockHealthCheckService = {
@@ -29,8 +28,6 @@ describe('HealthController', () => {
 
     controller = module.get<HealthController>(HealthController);
     healthCheckService = module.get(HealthCheckService);
-    fheHealthIndicator = module.get<FheHealthIndicator>(FheHealthIndicator);
-    fheService = module.get(FHE_SERVICE);
   });
 
   describe('liveness', () => {
@@ -69,10 +66,7 @@ describe('FheHealthIndicator', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        FheHealthIndicator,
-        { provide: FHE_SERVICE, useValue: mockFheService },
-      ],
+      providers: [FheHealthIndicator, { provide: FHE_SERVICE, useValue: mockFheService }],
     }).compile();
 
     indicator = module.get<FheHealthIndicator>(FheHealthIndicator);

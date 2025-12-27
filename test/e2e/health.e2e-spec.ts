@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
-import { FHE_SERVICE, IFheService } from '@domain/fhe';
+import { FHE_SERVICE, IFheService } from '@domain/fhe/service/fhe.service.interface';
 
 describe('Health Endpoints (e2e)', () => {
   let app: INestApplication;

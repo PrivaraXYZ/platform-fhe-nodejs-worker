@@ -9,7 +9,7 @@ import {
   InvalidEncryptionValueError,
   UnsupportedEncryptionTypeError,
   WorkerPoolExhaustedError,
-} from '@domain/fhe';
+} from '@domain/fhe/error/fhe.error';
 
 describe('FHE Domain Errors', () => {
   describe('FhevmNotInitializedError', () => {

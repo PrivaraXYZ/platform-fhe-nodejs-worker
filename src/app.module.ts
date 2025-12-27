@@ -2,9 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import * as os from 'os';
-import { fheConfig, workerConfig } from '@infrastructure/config';
-import { FheModule } from '@infrastructure/fhe';
-import { EncryptModule, HealthModule } from '@interface/http';
+import fheConfig from '@infrastructure/config/fhe.config';
+import workerConfig from '@infrastructure/config/worker.config';
+import { FheModule } from '@infrastructure/fhe/fhe.module';
+import { EncryptModule } from '@interface/http/encrypt/encrypt.module';
+import { HealthModule } from '@interface/http/health/health.module';
 
 @Module({
   imports: [

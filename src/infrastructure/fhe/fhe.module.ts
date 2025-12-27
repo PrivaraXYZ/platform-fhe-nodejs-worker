@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { FheWorkerPoolService } from './fhe-worker-pool.service';
-import { FHE_SERVICE } from '@domain/fhe';
+import { FHE_SERVICE } from '@domain/fhe/service/fhe.service.interface';
 
 @Module({
   providers: [

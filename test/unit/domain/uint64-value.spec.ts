@@ -1,4 +1,5 @@
-import { Uint64Value, InvalidEncryptionValueError } from '@domain/fhe';
+import { Uint64Value } from '@domain/fhe/value-object/uint64-value';
+import { InvalidEncryptionValueError } from '@domain/fhe/error/fhe.error';
 
 describe('Uint64Value', () => {
   describe('create', () => {

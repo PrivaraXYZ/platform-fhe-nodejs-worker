@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config';
-import { FheConfig } from '@domain/fhe';
+import { FheConfig } from '@domain/fhe/model/fhe-config';
 
 export default registerAs(
   'fhe',

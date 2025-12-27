@@ -1,12 +1,9 @@
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import {
-  EncryptRequestDto,
-  EncryptUint64RequestDto,
-  EncryptAddressRequestDto,
-  EncryptBoolRequestDto,
-  EncryptionTypeDto,
-} from '@application/dto';
+import { EncryptRequestDto, EncryptionTypeDto } from '@application/dto/encrypt-request.dto';
+import { EncryptUint64RequestDto } from '@application/dto/encrypt-uint64-request.dto';
+import { EncryptAddressRequestDto } from '@application/dto/encrypt-address-request.dto';
+import { EncryptBoolRequestDto } from '@application/dto/encrypt-bool-request.dto';
 
 describe('DTO Validation', () => {
   const validContractAddress = '0x1234567890123456789012345678901234567890';

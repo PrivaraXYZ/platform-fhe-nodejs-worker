@@ -1,12 +1,12 @@
 import { ArgumentsHost, BadRequestException, HttpStatus } from '@nestjs/common';
-import { GlobalExceptionFilter } from '@interface/http/filter';
+import { GlobalExceptionFilter } from '@interface/http/filter/global-exception.filter';
 import {
   FhevmNotInitializedError,
   EncryptionError,
   EncryptionTimeoutError,
   InvalidContractAddressError,
   WorkerPoolExhaustedError,
-} from '@domain/fhe';
+} from '@domain/fhe/error/fhe.error';
 
 describe('GlobalExceptionFilter', () => {
   let filter: GlobalExceptionFilter;

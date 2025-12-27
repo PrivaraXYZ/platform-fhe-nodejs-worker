@@ -1,7 +1,7 @@
-import { Result } from '@domain/common';
-import { EncryptedValue } from '../value-object';
-import { FheConfig } from '../model';
-import { FheDomainError } from '../error';
+import { Result } from '@domain/common/result';
+import { EncryptedValue } from '../value-object/encrypted-value';
+import { FheConfig } from '../model/fhe-config';
+import { FheDomainError } from '../error/fhe.error';
 
 export interface EncryptionResult {
   encryptedValue: EncryptedValue;

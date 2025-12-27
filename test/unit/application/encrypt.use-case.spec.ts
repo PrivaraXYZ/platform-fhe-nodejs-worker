@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EncryptUseCase } from '@application/use-case';
-import { EncryptionTypeDto } from '@application/dto';
+import { EncryptUseCase } from '@application/use-case/encrypt.use-case';
+import { EncryptionTypeDto } from '@application/dto/encrypt-request.dto';
 import {
   IFheService,
   FHE_SERVICE,
   EncryptionResult,
-  EncryptedValue,
-  EthereumAddress,
-  FhevmNotInitializedError,
-} from '@domain/fhe';
+} from '@domain/fhe/service/fhe.service.interface';
+import { EncryptedValue } from '@domain/fhe/value-object/encrypted-value';
+import { EthereumAddress } from '@domain/fhe/value-object/ethereum-address';
+import { FhevmNotInitializedError } from '@domain/fhe/error/fhe.error';
 
 describe('EncryptUseCase', () => {
   let useCase: EncryptUseCase;
@@ -26,10 +26,7 @@ describe('EncryptUseCase', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        EncryptUseCase,
-        { provide: FHE_SERVICE, useValue: mockFheService },
-      ],
+      providers: [EncryptUseCase, { provide: FHE_SERVICE, useValue: mockFheService }],
     }).compile();
 
     useCase = module.get<EncryptUseCase>(EncryptUseCase);

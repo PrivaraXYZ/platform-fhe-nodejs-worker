@@ -1,5 +1,5 @@
-import { Result, Ok, Err } from '@domain/common';
-import { InvalidContractAddressError, InvalidUserAddressError } from '../error';
+import { Result, Ok, Err } from '@domain/common/result';
+import { InvalidContractAddressError, InvalidUserAddressError } from '../error/fhe.error';
 
 const ETH_ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/;
 
@@ -18,9 +18,7 @@ export class EthereumAddress {
     return Ok(new EthereumAddress(address.toLowerCase()));
   }
 
-  static createContract(
-    address: string,
-  ): Result<EthereumAddress, InvalidContractAddressError> {
+  static createContract(address: string): Result<EthereumAddress, InvalidContractAddressError> {
     if (!ETH_ADDRESS_REGEX.test(address)) {
       return Err(new InvalidContractAddressError(address));
     }

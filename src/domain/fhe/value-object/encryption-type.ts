@@ -1,5 +1,5 @@
-import { Result, Ok, Err } from '@domain/common';
-import { UnsupportedEncryptionTypeError } from '../error';
+import { Result, Ok, Err } from '@domain/common/result';
+import { UnsupportedEncryptionTypeError } from '../error/fhe.error';
 
 export enum EncryptionTypeValue {
   UINT64 = 'euint64',

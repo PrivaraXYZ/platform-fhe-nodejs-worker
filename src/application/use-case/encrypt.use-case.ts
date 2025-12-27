@@ -1,12 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { Result } from '@domain/common/result';
 import {
-  Result,
   IFheService,
   FHE_SERVICE,
-  FheDomainError,
   EncryptionResult,
-} from '@domain/fhe';
-import { EncryptionTypeDto } from '../dto';
+} from '@domain/fhe/service/fhe.service.interface';
+import { FheDomainError } from '@domain/fhe/error/fhe.error';
+import { EncryptionTypeDto } from '../dto/encrypt-request.dto';
 
 export interface EncryptInput {
   type: EncryptionTypeDto;

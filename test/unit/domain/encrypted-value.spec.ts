@@ -1,4 +1,5 @@
-import { EncryptedValue, EthereumAddress } from '@domain/fhe';
+import { EncryptedValue } from '@domain/fhe/value-object/encrypted-value';
+import { EthereumAddress } from '@domain/fhe/value-object/ethereum-address';
 
 describe('EncryptedValue', () => {
   const handle = '0x1234567890abcdef';
