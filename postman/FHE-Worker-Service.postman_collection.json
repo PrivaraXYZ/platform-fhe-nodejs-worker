@@ -1,0 +1,629 @@
+{
+  "info": {
+    "_postman_id": "fhe-worker-service-collection",
+    "name": "FHE Worker Service",
+    "description": "Stateless REST API for Fully Homomorphic Encryption using Zama FHEVM.\n\n## Overview\n\nThis service provides FHE encryption for smart contract inputs. It supports encrypting:\n- **uint64** - 64-bit unsigned integers\n- **address** - Ethereum addresses\n- **bool** - Boolean values\n\n## Authentication\n\nNo authentication required (stateless service).\n\n## Base URL\n\n- Local: `http://localhost:3000`\n- Docker: `http://localhost:3000`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "contractAddress",
+      "value": "0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41",
+      "type": "string"
+    },
+    {
+      "key": "userAddress",
+      "value": "0x1234567890123456789012345678901234567890",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "description": "Health check endpoints for monitoring service status.",
+      "item": [
+        {
+          "name": "Liveness Probe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Basic liveness check. Returns 200 if the service is running."
+          },
+          "response": [
+            {
+              "name": "Healthy",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/health",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["health"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"status\": \"ok\",\n  \"info\": {\n    \"fhevm\": {\n      \"status\": \"up\"\n    }\n  },\n  \"error\": {},\n  \"details\": {\n    \"fhevm\": {\n      \"status\": \"up\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Readiness Probe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/ready",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "ready"]
+            },
+            "description": "Readiness check. Returns 200 if FHEVM is initialized and ready to process requests."
+          },
+          "response": [
+            {
+              "name": "Ready",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/health/ready",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["health", "ready"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"status\": \"ok\",\n  \"info\": {\n    \"fhevm\": {\n      \"status\": \"up\"\n    }\n  },\n  \"error\": {},\n  \"details\": {\n    \"fhevm\": {\n      \"status\": \"up\"\n    }\n  }\n}"
+            },
+            {
+              "name": "Not Ready",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/health/ready",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["health", "ready"]
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"status\": \"error\",\n  \"info\": {},\n  \"error\": {\n    \"fhevm\": {\n      \"status\": \"down\",\n      \"message\": \"FHEVM not initialized\"\n    }\n  },\n  \"details\": {\n    \"fhevm\": {\n      \"status\": \"down\",\n      \"message\": \"FHEVM not initialized\"\n    }\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Encrypt",
+      "description": "FHE encryption endpoints for encrypting values for smart contracts.",
+      "item": [
+        {
+          "name": "Generic",
+          "description": "Universal encryption endpoint that accepts a type parameter.",
+          "item": [
+            {
+              "name": "Encrypt (Generic)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"euint64\",\n  \"value\": \"1000000\",\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"userAddress\": \"{{userAddress}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/encrypt",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "encrypt"]
+                },
+                "description": "Universal encryption endpoint. Supports types: `euint64`, `eaddress`, `ebool`.\n\n**Request Body:**\n- `type` - Encryption type (euint64, eaddress, ebool)\n- `value` - Value to encrypt (string for uint64/address, boolean for bool)\n- `contractAddress` - Target smart contract address\n- `userAddress` - User's Ethereum address"
+              },
+              "response": [
+                {
+                  "name": "Success - uint64",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"type\": \"euint64\",\n  \"value\": \"1000000\",\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"userAddress\": \"{{userAddress}}\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/encrypt",
+                      "host": ["{{baseUrl}}"],
+                      "path": ["api", "v1", "encrypt"]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"type\": \"euint64\",\n  \"handle\": \"0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\",\n  \"proof\": \"0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890\",\n  \"contractAddress\": \"0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41\",\n  \"userAddress\": \"0x1234567890123456789012345678901234567890\",\n  \"encryptionTimeMs\": 2350\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Typed Shortcuts",
+          "description": "Type-specific encryption endpoints (no type field needed in request body).",
+          "item": [
+            {
+              "name": "Encrypt uint64",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"value\": \"1000000\",\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"userAddress\": \"{{userAddress}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/encrypt/uint64",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "encrypt", "uint64"]
+                },
+                "description": "Encrypt a 64-bit unsigned integer.\n\n**Value Range:** 0 to 18446744073709551615\n\n**Use Cases:**\n- Token amounts\n- Timestamps\n- Counters\n- Numeric IDs"
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"value\": \"1000000\",\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"userAddress\": \"{{userAddress}}\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/encrypt/uint64",
+                      "host": ["{{baseUrl}}"],
+                      "path": ["api", "v1", "encrypt", "uint64"]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"type\": \"euint64\",\n  \"handle\": \"0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\",\n  \"proof\": \"0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890\",\n  \"contractAddress\": \"0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41\",\n  \"userAddress\": \"0x1234567890123456789012345678901234567890\",\n  \"encryptionTimeMs\": 2350\n}"
+                },
+                {
+                  "name": "Validation Error - Invalid Value",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"value\": \"-1\",\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"userAddress\": \"{{userAddress}}\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/encrypt/uint64",
+                      "host": ["{{baseUrl}}"],
+                      "path": ["api", "v1", "encrypt", "uint64"]
+                    }
+                  },
+                  "status": "Unprocessable Entity",
+                  "code": 422,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"type\": \"urn:fhe:error:invalid-value\",\n  \"title\": \"Invalid Value\",\n  \"status\": 422,\n  \"detail\": \"Value must be between 0 and 18446744073709551615\",\n  \"instance\": \"/api/v1/encrypt/uint64\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Encrypt address",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"value\": \"0xabcdef0123456789abcdef0123456789abcdef01\",\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"userAddress\": \"{{userAddress}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/encrypt/address",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "encrypt", "address"]
+                },
+                "description": "Encrypt an Ethereum address.\n\n**Format:** 0x followed by 40 hexadecimal characters\n\n**Use Cases:**\n- Private recipient addresses\n- Hidden wallet references\n- Confidential counterparty information"
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"value\": \"0xabcdef0123456789abcdef0123456789abcdef01\",\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"userAddress\": \"{{userAddress}}\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/encrypt/address",
+                      "host": ["{{baseUrl}}"],
+                      "path": ["api", "v1", "encrypt", "address"]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"type\": \"eaddress\",\n  \"handle\": \"0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\",\n  \"proof\": \"0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890\",\n  \"contractAddress\": \"0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41\",\n  \"userAddress\": \"0x1234567890123456789012345678901234567890\",\n  \"encryptionTimeMs\": 2100\n}"
+                },
+                {
+                  "name": "Validation Error - Invalid Address",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"value\": \"0xinvalid\",\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"userAddress\": \"{{userAddress}}\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/encrypt/address",
+                      "host": ["{{baseUrl}}"],
+                      "path": ["api", "v1", "encrypt", "address"]
+                    }
+                  },
+                  "status": "Unprocessable Entity",
+                  "code": 422,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"type\": \"urn:fhe:error:invalid-address\",\n  \"title\": \"Invalid Address\",\n  \"status\": 422,\n  \"detail\": \"Invalid Ethereum address format\",\n  \"instance\": \"/api/v1/encrypt/address\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Encrypt bool",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"value\": true,\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"userAddress\": \"{{userAddress}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/encrypt/bool",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "encrypt", "bool"]
+                },
+                "description": "Encrypt a boolean value.\n\n**Values:** true or false\n\n**Use Cases:**\n- Private flags\n- Confidential voting\n- Hidden state toggles"
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"value\": true,\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"userAddress\": \"{{userAddress}}\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/encrypt/bool",
+                      "host": ["{{baseUrl}}"],
+                      "path": ["api", "v1", "encrypt", "bool"]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"type\": \"ebool\",\n  \"handle\": \"0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\",\n  \"proof\": \"0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890\",\n  \"contractAddress\": \"0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41\",\n  \"userAddress\": \"0x1234567890123456789012345678901234567890\",\n  \"encryptionTimeMs\": 1850\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Batch",
+          "description": "Batch encryption endpoint for encrypting multiple values in a single request.",
+          "item": [
+            {
+              "name": "Encrypt Batch (Shared Context)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"userAddress\": \"{{userAddress}}\",\n  \"items\": [\n    { \"type\": \"euint64\", \"value\": \"1000000\" },\n    { \"type\": \"ebool\", \"value\": true },\n    { \"type\": \"eaddress\", \"value\": \"0xabcdef0123456789abcdef0123456789abcdef01\" }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/encrypt/batch",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "encrypt", "batch"]
+                },
+                "description": "Encrypt multiple values with shared contract and user addresses.\n\n**Max Items:** 10\n\n**Behavior:** All-or-nothing. If any item fails, the entire batch returns an error.\n\n**Use Cases:**\n- Encrypting multiple inputs for a single transaction\n- Batch processing for efficiency"
+              },
+              "response": [
+                {
+                  "name": "Success - Shared Context",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"userAddress\": \"{{userAddress}}\",\n  \"items\": [\n    { \"type\": \"euint64\", \"value\": \"1000000\" },\n    { \"type\": \"ebool\", \"value\": true },\n    { \"type\": \"eaddress\", \"value\": \"0xabcdef0123456789abcdef0123456789abcdef01\" }\n  ]\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/encrypt/batch",
+                      "host": ["{{baseUrl}}"],
+                      "path": ["api", "v1", "encrypt", "batch"]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"results\": [\n    {\n      \"type\": \"euint64\",\n      \"handle\": \"0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\",\n      \"proof\": \"0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890\",\n      \"contractAddress\": \"0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41\",\n      \"userAddress\": \"0x1234567890123456789012345678901234567890\",\n      \"encryptionTimeMs\": 2350\n    },\n    {\n      \"type\": \"ebool\",\n      \"handle\": \"0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321\",\n      \"proof\": \"0x123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0\",\n      \"contractAddress\": \"0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41\",\n      \"userAddress\": \"0x1234567890123456789012345678901234567890\",\n      \"encryptionTimeMs\": 1850\n    },\n    {\n      \"type\": \"eaddress\",\n      \"handle\": \"0xaabbccdd11223344aabbccdd11223344aabbccdd11223344aabbccdd11223344\",\n      \"proof\": \"0x44332211ddccbbaa44332211ddccbbaa44332211ddccbbaa44332211ddccbbaa\",\n      \"contractAddress\": \"0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41\",\n      \"userAddress\": \"0x1234567890123456789012345678901234567890\",\n      \"encryptionTimeMs\": 2100\n    }\n  ],\n  \"totalEncryptionTimeMs\": 6300\n}"
+                }
+              ]
+            },
+            {
+              "name": "Encrypt Batch (Per-Item Context)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"type\": \"euint64\",\n      \"value\": \"500\",\n      \"contractAddress\": \"0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41\",\n      \"userAddress\": \"0x1234567890123456789012345678901234567890\"\n    },\n    {\n      \"type\": \"ebool\",\n      \"value\": false,\n      \"contractAddress\": \"0x9999999999999999999999999999999999999999\",\n      \"userAddress\": \"0x8888888888888888888888888888888888888888\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/encrypt/batch",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "encrypt", "batch"]
+                },
+                "description": "Encrypt multiple values with different contract/user addresses per item.\n\n**Use Cases:**\n- Encrypting values for multiple contracts\n- Cross-contract batch operations"
+              },
+              "response": [
+                {
+                  "name": "Success - Per-Item Context",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"items\": [\n    {\n      \"type\": \"euint64\",\n      \"value\": \"500\",\n      \"contractAddress\": \"0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41\",\n      \"userAddress\": \"0x1234567890123456789012345678901234567890\"\n    },\n    {\n      \"type\": \"ebool\",\n      \"value\": false,\n      \"contractAddress\": \"0x9999999999999999999999999999999999999999\",\n      \"userAddress\": \"0x8888888888888888888888888888888888888888\"\n    }\n  ]\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/encrypt/batch",
+                      "host": ["{{baseUrl}}"],
+                      "path": ["api", "v1", "encrypt", "batch"]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"results\": [\n    {\n      \"type\": \"euint64\",\n      \"handle\": \"0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\",\n      \"proof\": \"0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890\",\n      \"contractAddress\": \"0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41\",\n      \"userAddress\": \"0x1234567890123456789012345678901234567890\",\n      \"encryptionTimeMs\": 2350\n    },\n    {\n      \"type\": \"ebool\",\n      \"handle\": \"0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321\",\n      \"proof\": \"0x123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0\",\n      \"contractAddress\": \"0x9999999999999999999999999999999999999999\",\n      \"userAddress\": \"0x8888888888888888888888888888888888888888\",\n      \"encryptionTimeMs\": 1850\n    }\n  ],\n  \"totalEncryptionTimeMs\": 4200\n}"
+                }
+              ]
+            },
+            {
+              "name": "Batch Validation Error",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"items\": [\n    { \"type\": \"euint64\", \"value\": \"100\" }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/encrypt/batch",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "encrypt", "batch"]
+                },
+                "description": "Example of validation error when only contractAddress is provided without userAddress."
+              },
+              "response": [
+                {
+                  "name": "Validation Error",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"contractAddress\": \"{{contractAddress}}\",\n  \"items\": [\n    { \"type\": \"euint64\", \"value\": \"100\" }\n  ]\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/v1/encrypt/batch",
+                      "host": ["{{baseUrl}}"],
+                      "path": ["api", "v1", "encrypt", "batch"]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"type\": \"urn:fhe:error:validation\",\n  \"title\": \"Validation Failed\",\n  \"status\": 400,\n  \"detail\": \"Request validation failed\",\n  \"instance\": \"/api/v1/encrypt/batch\",\n  \"invalidParams\": [\n    {\n      \"name\": \"Both\",\n      \"reason\": \"Both contractAddress and userAddress must be provided together at batch level\"\n    }\n  ]\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Error Examples",
+      "description": "Examples of error responses following RFC 7807 Problem Details format.",
+      "item": [
+        {
+          "name": "400 - Validation Error",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": \"1000000\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/encrypt/uint64",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "encrypt", "uint64"]
+            },
+            "description": "Missing required fields triggers a 400 validation error."
+          },
+          "response": [
+            {
+              "name": "Validation Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"value\": \"1000000\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/encrypt/uint64",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "encrypt", "uint64"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"type\": \"urn:fhe:error:validation\",\n  \"title\": \"Validation Failed\",\n  \"status\": 400,\n  \"detail\": \"Request validation failed\",\n  \"instance\": \"/api/v1/encrypt/uint64\",\n  \"invalidParams\": [\n    {\n      \"name\": \"contractAddress\",\n      \"reason\": \"contractAddress must be a valid Ethereum address\"\n    },\n    {\n      \"name\": \"userAddress\",\n      \"reason\": \"userAddress must be a valid Ethereum address\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "422 - Invalid Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": \"1000000\",\n  \"contractAddress\": \"0xinvalid\",\n  \"userAddress\": \"{{userAddress}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/encrypt/uint64",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "encrypt", "uint64"]
+            },
+            "description": "Invalid Ethereum address format triggers a 422 error."
+          },
+          "response": [
+            {
+              "name": "Invalid Address",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"value\": \"1000000\",\n  \"contractAddress\": \"0xinvalid\",\n  \"userAddress\": \"{{userAddress}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/encrypt/uint64",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "encrypt", "uint64"]
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"type\": \"urn:fhe:error:invalid-address\",\n  \"title\": \"Invalid Contract Address\",\n  \"status\": 422,\n  \"detail\": \"Invalid contract address format: 0xinvalid\",\n  \"instance\": \"/api/v1/encrypt/uint64\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
