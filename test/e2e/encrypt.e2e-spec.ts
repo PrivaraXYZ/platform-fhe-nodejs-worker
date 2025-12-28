@@ -6,11 +6,11 @@ import {
   FHE_SERVICE,
   IFheService,
   EncryptionResult,
-  EncryptedValue,
-  EthereumAddress,
-  FhevmNotInitializedError,
-} from '@domain/fhe';
-import { GlobalExceptionFilter } from '@interface/http/filter';
+} from '@domain/fhe/service/fhe.service.interface';
+import { EncryptedValue } from '@domain/fhe/value-object/encrypted-value';
+import { EthereumAddress } from '@domain/fhe/value-object/ethereum-address';
+import { FhevmNotInitializedError } from '@domain/fhe/error/fhe.error';
+import { GlobalExceptionFilter } from '@interface/http/filter/global-exception.filter';
 
 describe('Encrypt Endpoints (e2e)', () => {
   let app: INestApplication;
@@ -258,6 +258,245 @@ describe('Encrypt Endpoints (e2e)', () => {
         .expect((res: any) => {
           expect(res.body.type).toBe('urn:fhe:error:not-initialized');
         });
+    });
+  });
+
+  describe('POST /api/v1/encrypt/batch', () => {
+    describe('shared context flow', () => {
+      it('should encrypt multiple values with shared context', () => {
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            contractAddress: validContractAddress,
+            userAddress: validUserAddress,
+            items: [
+              { type: 'euint64', value: '1000000' },
+              { type: 'ebool', value: true },
+            ],
+          })
+          .expect(200)
+          .expect((res: any) => {
+            expect(res.body.results).toHaveLength(2);
+            expect(res.body.results[0].type).toBe('euint64');
+            expect(res.body.results[1].type).toBe('ebool');
+            expect(res.body.totalEncryptionTimeMs).toBeGreaterThanOrEqual(0);
+          });
+      });
+
+      it('should encrypt all supported types', () => {
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            contractAddress: validContractAddress,
+            userAddress: validUserAddress,
+            items: [
+              { type: 'euint64', value: '42' },
+              { type: 'eaddress', value: validUserAddress },
+              { type: 'ebool', value: false },
+            ],
+          })
+          .expect(200)
+          .expect((res: any) => {
+            expect(res.body.results).toHaveLength(3);
+            expect(res.body.results[0].type).toBe('euint64');
+            expect(res.body.results[1].type).toBe('eaddress');
+            expect(res.body.results[2].type).toBe('ebool');
+          });
+      });
+    });
+
+    describe('per-item context flow', () => {
+      it('should encrypt items with individual contexts', () => {
+        const otherContract = '0x9999999999999999999999999999999999999999';
+        const otherUser = '0x8888888888888888888888888888888888888888';
+
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            items: [
+              {
+                type: 'euint64',
+                value: '500',
+                contractAddress: validContractAddress,
+                userAddress: validUserAddress,
+              },
+              {
+                type: 'ebool',
+                value: true,
+                contractAddress: otherContract,
+                userAddress: otherUser,
+              },
+            ],
+          })
+          .expect(200)
+          .expect((res: any) => {
+            expect(res.body.results).toHaveLength(2);
+          });
+      });
+    });
+
+    describe('validation errors', () => {
+      it('should return 400 when only contractAddress is provided at batch level', () => {
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            contractAddress: validContractAddress,
+            items: [{ type: 'euint64', value: '100' }],
+          })
+          .expect(400)
+          .expect((res: any) => {
+            expect(res.body.invalidParams[0].reason).toContain(
+              'Both contractAddress and userAddress must be provided together at batch level',
+            );
+          });
+      });
+
+      it('should return 400 when only userAddress is provided at batch level', () => {
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            userAddress: validUserAddress,
+            items: [{ type: 'euint64', value: '100' }],
+          })
+          .expect(400)
+          .expect((res: any) => {
+            expect(res.body.invalidParams[0].reason).toContain(
+              'Both contractAddress and userAddress must be provided together at batch level',
+            );
+          });
+      });
+
+      it('should return 400 when mixing shared and item-level context', () => {
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            contractAddress: validContractAddress,
+            userAddress: validUserAddress,
+            items: [
+              {
+                type: 'euint64',
+                value: '100',
+                contractAddress: '0x9999999999999999999999999999999999999999',
+                userAddress: '0x8888888888888888888888888888888888888888',
+              },
+            ],
+          })
+          .expect(400)
+          .expect((res: any) => {
+            expect(res.body.invalidParams[0].reason).toContain(
+              'Cannot specify addresses when batch-level addresses are provided',
+            );
+          });
+      });
+
+      it('should return 400 when item is missing context', () => {
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            items: [{ type: 'euint64', value: '100' }],
+          })
+          .expect(400)
+          .expect((res: any) => {
+            expect(res.body.invalidParams[0].reason).toContain(
+              'Missing contractAddress and userAddress',
+            );
+          });
+      });
+
+      it('should return 400 for empty items array', () => {
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            contractAddress: validContractAddress,
+            userAddress: validUserAddress,
+            items: [],
+          })
+          .expect(400);
+      });
+
+      it('should return 400 for too many items', () => {
+        const items = Array.from({ length: 11 }, () => ({
+          type: 'euint64',
+          value: '100',
+        }));
+
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            contractAddress: validContractAddress,
+            userAddress: validUserAddress,
+            items,
+          })
+          .expect(400);
+      });
+
+      it('should return 400 for invalid type in item', () => {
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            contractAddress: validContractAddress,
+            userAddress: validUserAddress,
+            items: [{ type: 'invalid', value: '100' }],
+          })
+          .expect(400);
+      });
+
+      it('should return 400 for invalid address format in item', () => {
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            items: [
+              {
+                type: 'euint64',
+                value: '100',
+                contractAddress: 'invalid',
+                userAddress: validUserAddress,
+              },
+            ],
+          })
+          .expect(400);
+      });
+    });
+
+    describe('all-or-nothing error handling', () => {
+      it('should return error when encryption fails for any item', () => {
+        const error = new FhevmNotInitializedError();
+        (mockFheService.encryptUint64 as jest.Mock)
+          .mockResolvedValueOnce({ ok: true, value: createMockResult('uint64') })
+          .mockResolvedValueOnce({ ok: false, error });
+
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            contractAddress: validContractAddress,
+            userAddress: validUserAddress,
+            items: [
+              { type: 'euint64', value: '100' },
+              { type: 'euint64', value: '200' },
+            ],
+          })
+          .expect(503)
+          .expect((res: any) => {
+            expect(res.body.type).toBe('urn:fhe:error:not-initialized');
+          });
+      });
+    });
+
+    describe('single item batch', () => {
+      it('should handle single item batch', () => {
+        return request(app.getHttpServer())
+          .post('/api/v1/encrypt/batch')
+          .send({
+            contractAddress: validContractAddress,
+            userAddress: validUserAddress,
+            items: [{ type: 'euint64', value: '42' }],
+          })
+          .expect(200)
+          .expect((res: any) => {
+            expect(res.body.results).toHaveLength(1);
+            expect(res.body.results[0].type).toBe('euint64');
+          });
+      });
     });
   });
 });
