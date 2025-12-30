@@ -1,5 +1,3 @@
-import { FheConfig, DEFAULT_FHE_CONFIG } from '@domain/fhe/model/fhe-config';
-
 interface ZamaEncryptedInput {
   add64: (value: number | bigint) => ZamaEncryptedInput;
   addAddress: (value: string) => ZamaEncryptedInput;
@@ -32,8 +30,6 @@ export interface EncryptResult {
 let fhevmInstance: ZamaFhevmInstance | null = null;
 let sdkModule: ZamaSDK | null = null;
 let initPromise: Promise<void> | null = null;
-// TODO: Use config when custom network support is added
-const _config: FheConfig = DEFAULT_FHE_CONFIG;
 
 async function ensureInitialized(): Promise<void> {
   if (fhevmInstance) return;
@@ -66,8 +62,12 @@ function toHexString(bytes: Uint8Array): string {
 export default async function encrypt(task: EncryptTask): Promise<EncryptResult> {
   await ensureInitialized();
 
+  if (!fhevmInstance) {
+    throw new Error('FHEVM instance not initialized');
+  }
+
   const startTime = Date.now();
-  const input = fhevmInstance!.createEncryptedInput(task.contractAddress, task.userAddress);
+  const input = fhevmInstance.createEncryptedInput(task.contractAddress, task.userAddress);
 
   switch (task.type) {
     case 'uint64':
@@ -82,6 +82,10 @@ export default async function encrypt(task: EncryptTask): Promise<EncryptResult>
   }
 
   const encrypted = await input.encrypt();
+
+  if (!encrypted.handles[0]) {
+    throw new Error('Encryption failed: no handle returned');
+  }
 
   return {
     handle: toHexString(encrypted.handles[0]),

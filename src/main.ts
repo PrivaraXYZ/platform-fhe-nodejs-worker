@@ -1,13 +1,53 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { ValidationPipe, Logger, LogLevel } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from '@interface/http/filter/global-exception.filter';
 
+function getLogLevels(level: string): LogLevel[] {
+  const levels: LogLevel[] = ['error', 'warn', 'log', 'debug', 'verbose'];
+  const index = levels.indexOf(level === 'info' ? 'log' : (level as LogLevel));
+  return index >= 0 ? levels.slice(0, index + 1) : ['error', 'warn', 'log'];
+}
+
 async function bootstrap() {
+  const logLevel = process.env.LOG_LEVEL || 'info';
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  const app = await NestFactory.create(AppModule, {
+    logger: isProduction
+      ? {
+          log: (message: string) =>
+            console.log(
+              JSON.stringify({ level: 'info', message, timestamp: new Date().toISOString() }),
+            ),
+          error: (message: string, trace?: string) =>
+            console.error(
+              JSON.stringify({
+                level: 'error',
+                message,
+                trace,
+                timestamp: new Date().toISOString(),
+              }),
+            ),
+          warn: (message: string) =>
+            console.warn(
+              JSON.stringify({ level: 'warn', message, timestamp: new Date().toISOString() }),
+            ),
+          debug: (message: string) =>
+            console.debug(
+              JSON.stringify({ level: 'debug', message, timestamp: new Date().toISOString() }),
+            ),
+          verbose: (message: string) =>
+            console.log(
+              JSON.stringify({ level: 'verbose', message, timestamp: new Date().toISOString() }),
+            ),
+        }
+      : getLogLevels(logLevel),
+  });
+
   const logger = new Logger('Bootstrap');
-  const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3000);

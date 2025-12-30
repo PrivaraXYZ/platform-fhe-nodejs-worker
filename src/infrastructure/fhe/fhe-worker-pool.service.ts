@@ -33,8 +33,18 @@ export class FheWorkerPoolService implements IFheService, OnModuleInit, OnModule
   private initialized = false;
 
   constructor(private readonly configService: ConfigService) {
-    this.fheConfig = this.configService.get<FheConfig>('fhe')!;
-    this.workerConfig = this.configService.get<WorkerConfig>('worker')!;
+    const fheConfig = this.configService.get<FheConfig>('fhe');
+    const workerConfig = this.configService.get<WorkerConfig>('worker');
+
+    if (!fheConfig) {
+      throw new Error('FHE configuration is missing. Check your environment variables.');
+    }
+    if (!workerConfig) {
+      throw new Error('Worker configuration is missing. Check your environment variables.');
+    }
+
+    this.fheConfig = fheConfig;
+    this.workerConfig = workerConfig;
   }
 
   async onModuleInit(): Promise<void> {

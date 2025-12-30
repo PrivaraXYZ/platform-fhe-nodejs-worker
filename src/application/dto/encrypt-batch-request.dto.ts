@@ -1,19 +1,19 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsString,
-  IsNotEmpty,
-  Matches,
   IsEnum,
-  IsBoolean,
   IsArray,
   ValidateNested,
   ArrayMinSize,
   ArrayMaxSize,
-  ValidateIf,
   IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { EncryptionTypeDto } from './encrypt-request.dto';
+import {
+  EncryptionTypeDto,
+  IsEthereumAddress,
+  IsValidEncryptValue,
+  ETHEREUM_ADDRESS_REGEX,
+} from './encrypt-request.dto';
 
 /**
  * Single item in a batch encryption request.
@@ -35,33 +35,27 @@ export class BatchItemDto {
     oneOf: [{ type: 'string' }, { type: 'boolean' }],
     examples: ['1000000', '0xabcdef...', true],
   })
-  @ValidateIf((o) => o.type !== EncryptionTypeDto.BOOL)
-  @IsString()
-  @IsNotEmpty()
-  @ValidateIf((o) => o.type === EncryptionTypeDto.BOOL)
-  @IsBoolean()
+  @IsValidEncryptValue()
   value!: string | boolean;
 
   @ApiPropertyOptional({
     description:
       'Contract address for this item. Required if not provided at batch level. Must not be set if batch-level address exists.',
     example: '0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41',
-    pattern: '^0x[a-fA-F0-9]{40}$',
+    pattern: ETHEREUM_ADDRESS_REGEX.source,
   })
   @IsOptional()
-  @IsString()
-  @Matches(/^0x[a-fA-F0-9]{40}$/, { message: 'Invalid Ethereum address format' })
+  @IsEthereumAddress()
   contractAddress?: string;
 
   @ApiPropertyOptional({
     description:
       'User address for this item. Required if not provided at batch level. Must not be set if batch-level address exists.',
     example: '0x1234567890123456789012345678901234567890',
-    pattern: '^0x[a-fA-F0-9]{40}$',
+    pattern: ETHEREUM_ADDRESS_REGEX.source,
   })
   @IsOptional()
-  @IsString()
-  @Matches(/^0x[a-fA-F0-9]{40}$/, { message: 'Invalid Ethereum address format' })
+  @IsEthereumAddress()
   userAddress?: string;
 }
 
@@ -79,22 +73,20 @@ export class EncryptBatchRequestDto {
     description:
       'Shared contract address for all items. If set, userAddress must also be set. Items must not have their own addresses.',
     example: '0xaBaC0e90FeBC5973D943D36351b9CE04A47bdB41',
-    pattern: '^0x[a-fA-F0-9]{40}$',
+    pattern: ETHEREUM_ADDRESS_REGEX.source,
   })
   @IsOptional()
-  @IsString()
-  @Matches(/^0x[a-fA-F0-9]{40}$/, { message: 'Invalid Ethereum address format' })
+  @IsEthereumAddress()
   contractAddress?: string;
 
   @ApiPropertyOptional({
     description:
       'Shared user address for all items. If set, contractAddress must also be set. Items must not have their own addresses.',
     example: '0x1234567890123456789012345678901234567890',
-    pattern: '^0x[a-fA-F0-9]{40}$',
+    pattern: ETHEREUM_ADDRESS_REGEX.source,
   })
   @IsOptional()
-  @IsString()
-  @Matches(/^0x[a-fA-F0-9]{40}$/, { message: 'Invalid Ethereum address format' })
+  @IsEthereumAddress()
   userAddress?: string;
 
   @ApiProperty({
