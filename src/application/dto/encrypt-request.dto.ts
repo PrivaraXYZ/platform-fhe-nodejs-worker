@@ -1,13 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsString,
-  IsNotEmpty,
-  Matches,
-  IsEnum,
-  IsOptional,
-  IsBoolean,
-  ValidateIf,
-} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, Matches, IsEnum, IsBoolean, ValidateIf } from 'class-validator';
 
 export enum EncryptionTypeDto {
   UINT64 = 'euint64',

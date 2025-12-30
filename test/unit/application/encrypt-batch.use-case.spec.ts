@@ -1,12 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  BatchEncryptUseCase,
-  BatchValidationError,
-} from '@application/use-case/encrypt-batch.use-case';
+import { BatchEncryptUseCase } from '@application/use-case/encrypt-batch.use-case';
 import { EncryptUseCase, EncryptOutput } from '@application/use-case/encrypt.use-case';
 import { EncryptionTypeDto } from '@application/dto/encrypt-request.dto';
-import { IFheService, FHE_SERVICE } from '@domain/fhe/service/fhe.service.interface';
-import { FhevmNotInitializedError } from '@domain/fhe/error/fhe.error';
+import { FhevmNotInitializedError, BatchValidationError } from '@domain/fhe/error/fhe.error';
 
 describe('BatchEncryptUseCase', () => {
   let useCase: BatchEncryptUseCase;
@@ -29,16 +25,8 @@ describe('BatchEncryptUseCase', () => {
       execute: jest.fn(),
     };
 
-    const mockFheService: Partial<jest.Mocked<IFheService>> = {
-      isInitialized: jest.fn().mockReturnValue(true),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        BatchEncryptUseCase,
-        { provide: EncryptUseCase, useValue: mockEncryptUseCase },
-        { provide: FHE_SERVICE, useValue: mockFheService },
-      ],
+      providers: [BatchEncryptUseCase, { provide: EncryptUseCase, useValue: mockEncryptUseCase }],
     }).compile();
 
     useCase = module.get<BatchEncryptUseCase>(BatchEncryptUseCase);

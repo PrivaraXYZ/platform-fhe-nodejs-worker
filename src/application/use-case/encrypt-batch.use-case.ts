@@ -1,7 +1,6 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Result, Ok, Err } from '@domain/common/result';
-import { IFheService, FHE_SERVICE } from '@domain/fhe/service/fhe.service.interface';
-import { FheDomainError } from '@domain/fhe/error/fhe.error';
+import { FheDomainError, BatchValidationError } from '@domain/fhe/error/fhe.error';
 import { EncryptionTypeDto } from '../dto/encrypt-request.dto';
 import { EncryptUseCase, EncryptOutput } from './encrypt.use-case';
 
@@ -23,19 +22,9 @@ export interface BatchEncryptOutput {
   totalEncryptionTimeMs: number;
 }
 
-export class BatchValidationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'BatchValidationError';
-  }
-}
-
 @Injectable()
 export class BatchEncryptUseCase {
-  constructor(
-    @Inject(FHE_SERVICE) private readonly fheService: IFheService,
-    private readonly encryptUseCase: EncryptUseCase,
-  ) {}
+  constructor(private readonly encryptUseCase: EncryptUseCase) {}
 
   async execute(
     input: BatchEncryptInput,

@@ -9,10 +9,8 @@ import { EncryptBatchRequestDto } from '@application/dto/encrypt-batch-request.d
 import { EncryptBatchResponseDto } from '@application/dto/encrypt-batch-response.dto';
 import { ErrorResponseDto } from '@application/dto/error-response.dto';
 import { EncryptUseCase } from '@application/use-case/encrypt.use-case';
-import {
-  BatchEncryptUseCase,
-  BatchValidationError,
-} from '@application/use-case/encrypt-batch.use-case';
+import { BatchEncryptUseCase } from '@application/use-case/encrypt-batch.use-case';
+import { BatchValidationError } from '@domain/fhe/error/fhe.error';
 
 @ApiTags('Encrypt')
 @ApiExtraModels(EncryptedValueResponseDto, EncryptBatchResponseDto, ErrorResponseDto)

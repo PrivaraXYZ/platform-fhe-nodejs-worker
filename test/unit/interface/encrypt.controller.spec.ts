@@ -2,12 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
 import { EncryptController } from '@interface/http/encrypt/encrypt.controller';
 import { EncryptUseCase, EncryptOutput } from '@application/use-case/encrypt.use-case';
-import {
-  BatchEncryptUseCase,
-  BatchValidationError,
-} from '@application/use-case/encrypt-batch.use-case';
+import { BatchEncryptUseCase } from '@application/use-case/encrypt-batch.use-case';
 import { EncryptionTypeDto } from '@application/dto/encrypt-request.dto';
-import { FhevmNotInitializedError } from '@domain/fhe/error/fhe.error';
+import { FhevmNotInitializedError, BatchValidationError } from '@domain/fhe/error/fhe.error';
 
 describe('EncryptController', () => {
   let controller: EncryptController;

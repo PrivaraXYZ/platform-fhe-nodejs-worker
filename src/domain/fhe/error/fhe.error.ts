@@ -89,3 +89,11 @@ export class WorkerPoolExhaustedError extends FheDomainError {
     super('Worker pool exhausted. Too many concurrent requests.');
   }
 }
+
+export class BatchValidationError extends FheDomainError {
+  readonly code = 'BATCH_VALIDATION_ERROR';
+
+  constructor(message: string) {
+    super(message);
+  }
+}
