@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Result, Ok, Err } from '@domain/common/result';
 import { FheDomainError, BatchValidationError } from '@domain/fhe/error/fhe.error';
 import { EncryptionTypeDto } from '../dto/encrypt-request.dto';
@@ -24,27 +24,44 @@ export interface BatchEncryptOutput {
 
 @Injectable()
 export class BatchEncryptUseCase {
+  private readonly logger = new Logger(BatchEncryptUseCase.name);
+
   constructor(private readonly encryptUseCase: EncryptUseCase) {}
 
   async execute(
     input: BatchEncryptInput,
   ): Promise<Result<BatchEncryptOutput, FheDomainError | BatchValidationError>> {
+    const itemTypes = input.items.map((i) => i.type).join(', ');
+    this.logger.debug(`Batch encryption started: ${input.items.length} items [${itemTypes}]`);
+
     const validationResult = this.validateInput(input);
-    if (!validationResult.ok) return validationResult;
+    if (!validationResult.ok) {
+      this.logger.warn(`Batch validation failed: ${validationResult.error.message}`);
+      return validationResult;
+    }
 
     const normalizedItems = this.normalizeItems(input);
     const results: EncryptOutput[] = [];
     const startTime = Date.now();
 
-    for (const item of normalizedItems) {
+    for (let i = 0; i < normalizedItems.length; i++) {
+      const item = normalizedItems[i];
       const result = await this.encryptUseCase.execute(item);
-      if (!result.ok) return result;
+      if (!result.ok) {
+        this.logger.warn(
+          `Batch failed at item ${i}/${normalizedItems.length}: ${result.error.message}`,
+        );
+        return result;
+      }
       results.push(result.value);
     }
 
+    const totalTime = Date.now() - startTime;
+    this.logger.debug(`Batch completed: ${results.length} items in ${totalTime}ms`);
+
     return Ok({
       results,
-      totalEncryptionTimeMs: Date.now() - startTime,
+      totalEncryptionTimeMs: totalTime,
     });
   }
 

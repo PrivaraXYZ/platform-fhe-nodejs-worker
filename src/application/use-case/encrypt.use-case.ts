@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Result } from '@domain/common/result';
 import {
   IFheService,
@@ -26,11 +26,23 @@ export interface EncryptOutput {
 
 @Injectable()
 export class EncryptUseCase {
+  private readonly logger = new Logger(EncryptUseCase.name);
+
   constructor(@Inject(FHE_SERVICE) private readonly fheService: IFheService) {}
 
   async execute(input: EncryptInput): Promise<Result<EncryptOutput, FheDomainError>> {
+    const contractShort =
+      input.contractAddress.slice(0, 10) + '...' + input.contractAddress.slice(-4);
+    this.logger.debug(`Encrypting ${input.type} for contract=${contractShort}`);
+
     const result = await this.performEncryption(input);
-    if (!result.ok) return result;
+
+    if (!result.ok) {
+      this.logger.warn(`Encryption failed: ${result.error.code} - ${result.error.message}`);
+      return result;
+    }
+
+    this.logger.debug(`Encrypted ${input.type} in ${result.value.encryptionTimeMs}ms`);
 
     return {
       ok: true,

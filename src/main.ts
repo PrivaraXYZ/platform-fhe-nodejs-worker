@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from '@interface/http/filter/global-exception.filter';
+import { LoggingInterceptor } from '@infrastructure/logging/logging.interceptor';
 
 function getLogLevels(level: string): LogLevel[] {
   const levels: LogLevel[] = ['error', 'warn', 'log', 'debug', 'verbose'];
@@ -62,6 +63,7 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new GlobalExceptionFilter());
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   app.enableCors();
 
@@ -138,6 +140,7 @@ All errors follow [RFC 7807 Problem Details](https://datatracker.ietf.org/doc/ht
   await app.listen(port);
   logger.log(`Application running on port ${port}`);
   logger.log(`Swagger documentation: http://localhost:${port}/api/docs`);
+  logger.log(`Log level: ${logLevel}`);
 }
 
 bootstrap();
