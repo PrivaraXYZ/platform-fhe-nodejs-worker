@@ -1,4 +1,4 @@
-import { EncryptionType, EncryptionTypeValue } from './encryption-type';
+import { EncryptionType } from './encryption-type';
 import { EthereumAddress } from './ethereum-address';
 
 export interface EncryptedValueJson {
