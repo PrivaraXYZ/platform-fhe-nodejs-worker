@@ -41,23 +41,28 @@ export class BatchEncryptUseCase {
     }
 
     const normalizedItems = this.normalizeItems(input);
-    const results: EncryptOutput[] = [];
     const startTime = Date.now();
 
-    for (let i = 0; i < normalizedItems.length; i++) {
-      const item = normalizedItems[i];
-      const result = await this.encryptUseCase.execute(item);
+    // Execute all encryptions in parallel
+    const encryptionResults = await Promise.all(
+      normalizedItems.map((item, index) =>
+        this.encryptUseCase.execute(item).then((result) => ({ result, index })),
+      ),
+    );
+
+    // Check for failures (all-or-nothing semantics)
+    const results: EncryptOutput[] = [];
+    for (const { result, index } of encryptionResults) {
       if (!result.ok) {
         this.logger.warn(
-          `Batch failed at item ${i}/${normalizedItems.length}: ${result.error.message}`,
+          `Batch failed at item ${index}/${normalizedItems.length}: ${result.error.message}`,
         );
         return result;
       }
       results.push(result.value);
     }
-
     const totalTime = Date.now() - startTime;
-    this.logger.debug(`Batch completed: ${results.length} items in ${totalTime}ms`);
+    this.logger.debug(`Batch completed (parallel): ${results.length} items in ${totalTime}ms`);
 
     return Ok({
       results,

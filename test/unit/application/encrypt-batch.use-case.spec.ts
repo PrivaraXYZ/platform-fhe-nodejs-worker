@@ -267,14 +267,18 @@ describe('BatchEncryptUseCase', () => {
   });
 
   describe('all-or-nothing error handling', () => {
-    it('should return error and stop processing when encryption fails', async () => {
+    it('should return error when any encryption fails (parallel execution)', async () => {
       const error = new FhevmNotInitializedError();
       encryptUseCase.execute
         .mockResolvedValueOnce({
           ok: true,
           value: createMockEncryptOutput(EncryptionTypeDto.UINT64),
         })
-        .mockResolvedValueOnce({ ok: false, error });
+        .mockResolvedValueOnce({ ok: false, error })
+        .mockResolvedValueOnce({
+          ok: true,
+          value: createMockEncryptOutput(EncryptionTypeDto.ADDRESS),
+        });
 
       const result = await useCase.execute({
         contractAddress,
@@ -291,13 +295,16 @@ describe('BatchEncryptUseCase', () => {
         expect(result.error).toBe(error);
       }
 
-      // Should have stopped after second item
-      expect(encryptUseCase.execute).toHaveBeenCalledTimes(2);
+      // All items are processed in parallel
+      expect(encryptUseCase.execute).toHaveBeenCalledTimes(3);
     });
 
-    it('should return error immediately when first item fails', async () => {
+    it('should return error when first item fails (parallel execution)', async () => {
       const error = new FhevmNotInitializedError();
-      encryptUseCase.execute.mockResolvedValueOnce({ ok: false, error });
+      encryptUseCase.execute.mockResolvedValueOnce({ ok: false, error }).mockResolvedValueOnce({
+        ok: true,
+        value: createMockEncryptOutput(EncryptionTypeDto.BOOL),
+      });
 
       const result = await useCase.execute({
         contractAddress,
@@ -309,7 +316,8 @@ describe('BatchEncryptUseCase', () => {
       });
 
       expect(result.ok).toBe(false);
-      expect(encryptUseCase.execute).toHaveBeenCalledTimes(1);
+      // All items are processed in parallel
+      expect(encryptUseCase.execute).toHaveBeenCalledTimes(2);
     });
   });
 
