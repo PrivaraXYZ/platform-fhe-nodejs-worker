@@ -1,5 +1,9 @@
 # FHE Worker Service
 
+[![CI](https://github.com/PrivaraXYZ/platform-fhe-nodejs-worker/actions/workflows/ci.yml/badge.svg)](https://github.com/PrivaraXYZ/platform-fhe-nodejs-worker/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D24-brightgreen)](https://nodejs.org/)
+
 Stateless REST API for Fully Homomorphic Encryption using Zama FHEVM.
 
 ## Features

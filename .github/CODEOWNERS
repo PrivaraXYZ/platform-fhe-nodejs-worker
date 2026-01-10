@@ -1,0 +1,5 @@
+# Code Owners for platform-fhe-nodejs-worker
+# These users will be requested for review when PRs are opened
+
+# Default owners for everything in the repo
+* @PrivaraXYZ/maintainers
