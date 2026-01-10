@@ -62,4 +62,61 @@ describe('EncryptedValue', () => {
       });
     });
   });
+
+  describe('isForContract', () => {
+    it('should return true when contract address matches', () => {
+      const value = EncryptedValue.createUint64(handle, proof, contractAddress, userAddress);
+
+      expect(value.isForContract(contractAddress)).toBe(true);
+    });
+
+    it('should return false when contract address does not match', () => {
+      const value = EncryptedValue.createUint64(handle, proof, contractAddress, userAddress);
+      const otherResult = EthereumAddress.createContract(
+        '0x9999999999999999999999999999999999999999',
+      );
+
+      if (otherResult.ok) {
+        expect(value.isForContract(otherResult.value)).toBe(false);
+      }
+    });
+  });
+
+  describe('isForUser', () => {
+    it('should return true when user address matches', () => {
+      const value = EncryptedValue.createUint64(handle, proof, contractAddress, userAddress);
+
+      expect(value.isForUser(userAddress)).toBe(true);
+    });
+
+    it('should return false when user address does not match', () => {
+      const value = EncryptedValue.createUint64(handle, proof, contractAddress, userAddress);
+      const otherResult = EthereumAddress.createUser('0x8888888888888888888888888888888888888888');
+
+      if (otherResult.ok) {
+        expect(value.isForUser(otherResult.value)).toBe(false);
+      }
+    });
+  });
+
+  describe('normalizeHex', () => {
+    it('should keep 0x prefix when present', () => {
+      const value = EncryptedValue.createUint64(
+        '0xABCDEF',
+        '0x123456',
+        contractAddress,
+        userAddress,
+      );
+
+      expect(value.handle).toBe('0xabcdef');
+      expect(value.proof).toBe('0x123456');
+    });
+
+    it('should add 0x prefix when not present', () => {
+      const value = EncryptedValue.createUint64('abcdef', '123456', contractAddress, userAddress);
+
+      expect(value.handle).toBe('0xabcdef');
+      expect(value.proof).toBe('0x123456');
+    });
+  });
 });

@@ -44,6 +44,24 @@ describe('EthereumAddress', () => {
 
       expect(result.ok).toBe(false);
     });
+
+    it('should return InvalidContractAddressError for invalid contract address', () => {
+      const result = EthereumAddress.create('invalid', 'contract');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toBeInstanceOf(InvalidContractAddressError);
+      }
+    });
+
+    it('should use default type as user', () => {
+      const result = EthereumAddress.create(validAddress);
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.toString()).toBe(validAddress.toLowerCase());
+      }
+    });
   });
 
   describe('createContract', () => {

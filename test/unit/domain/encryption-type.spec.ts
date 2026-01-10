@@ -54,4 +54,49 @@ describe('EncryptionType', () => {
       expect(EncryptionType.BOOL.toString()).toBe('ebool');
     });
   });
+
+  describe('values', () => {
+    it('should return all encryption types', () => {
+      const values = EncryptionType.values();
+
+      expect(values).toHaveLength(3);
+      expect(values).toContain(EncryptionType.UINT64);
+      expect(values).toContain(EncryptionType.ADDRESS);
+      expect(values).toContain(EncryptionType.BOOL);
+    });
+  });
+
+  describe('equals', () => {
+    it('should return true for same types', () => {
+      expect(EncryptionType.UINT64.equals(EncryptionType.UINT64)).toBe(true);
+      expect(EncryptionType.ADDRESS.equals(EncryptionType.ADDRESS)).toBe(true);
+      expect(EncryptionType.BOOL.equals(EncryptionType.BOOL)).toBe(true);
+    });
+
+    it('should return false for different types', () => {
+      expect(EncryptionType.UINT64.equals(EncryptionType.ADDRESS)).toBe(false);
+      expect(EncryptionType.ADDRESS.equals(EncryptionType.BOOL)).toBe(false);
+      expect(EncryptionType.BOOL.equals(EncryptionType.UINT64)).toBe(false);
+    });
+  });
+
+  describe('type checks', () => {
+    it('isUint64 should return true only for UINT64', () => {
+      expect(EncryptionType.UINT64.isUint64()).toBe(true);
+      expect(EncryptionType.ADDRESS.isUint64()).toBe(false);
+      expect(EncryptionType.BOOL.isUint64()).toBe(false);
+    });
+
+    it('isAddress should return true only for ADDRESS', () => {
+      expect(EncryptionType.UINT64.isAddress()).toBe(false);
+      expect(EncryptionType.ADDRESS.isAddress()).toBe(true);
+      expect(EncryptionType.BOOL.isAddress()).toBe(false);
+    });
+
+    it('isBool should return true only for BOOL', () => {
+      expect(EncryptionType.UINT64.isBool()).toBe(false);
+      expect(EncryptionType.ADDRESS.isBool()).toBe(false);
+      expect(EncryptionType.BOOL.isBool()).toBe(true);
+    });
+  });
 });

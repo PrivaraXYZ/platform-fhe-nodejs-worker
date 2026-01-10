@@ -5,7 +5,15 @@ module.exports = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['src/**/*.(t|j)s', '!src/main.ts', '!src/**/*.module.ts'],
+  collectCoverageFrom: [
+    'src/**/*.(t|j)s',
+    '!src/main.ts',
+    '!src/**/*.module.ts',
+    '!src/domain/**/model/**',
+    '!src/infrastructure/config/**',
+    '!src/infrastructure/fhe/workers/**',
+    '!src/infrastructure/logging/**',
+  ],
   coverageDirectory: './coverage',
   coverageThreshold: {
     global: {

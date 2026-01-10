@@ -148,5 +148,111 @@ describe('FheWorkerPoolService', () => {
 
       expect(service.isInitialized()).toBe(false);
     });
+
+    it('should do nothing if pool is not initialized', async () => {
+      mockDestroy.mockClear();
+      // Service is not initialized, pool is null
+      // Create fresh service without initialization
+      const freshModule = await Test.createTestingModule({
+        providers: [
+          FheWorkerPoolService,
+          {
+            provide: ConfigService,
+            useValue: {
+              get: (key: string) => {
+                const configs: Record<string, unknown> = {
+                  fhe: { network: { chainId: 1 } },
+                  worker: {
+                    minThreads: 1,
+                    maxThreads: 2,
+                    idleTimeout: 1000,
+                    maxQueue: 10,
+                    taskTimeout: 1000,
+                  },
+                };
+                return configs[key];
+              },
+            },
+          },
+        ],
+      }).compile();
+
+      const freshService = freshModule.get<FheWorkerPoolService>(FheWorkerPoolService);
+      mockDestroy.mockClear();
+      await freshService.onModuleDestroy();
+
+      expect(mockDestroy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('encryptUint64 error handling', () => {
+    it('should return error for negative value', async () => {
+      await service.initialize();
+
+      const result = await service.encryptUint64(-1n, validContractAddress, validUserAddress);
+
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  describe('encryptAddress error handling', () => {
+    it('should return error for invalid address to encrypt', async () => {
+      await service.initialize();
+
+      const result = await service.encryptAddress(
+        'invalid-address',
+        validContractAddress,
+        validUserAddress,
+      );
+
+      expect(result.ok).toBe(false);
+    });
+
+    it('should return error for invalid contract address', async () => {
+      await service.initialize();
+
+      const result = await service.encryptAddress(validUserAddress, 'invalid', validUserAddress);
+
+      expect(result.ok).toBe(false);
+    });
+
+    it('should return error for invalid user address', async () => {
+      await service.initialize();
+
+      const result = await service.encryptAddress(
+        validUserAddress,
+        validContractAddress,
+        'invalid',
+      );
+
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  describe('encryptBool error handling', () => {
+    it('should return error for invalid contract address', async () => {
+      await service.initialize();
+
+      const result = await service.encryptBool(true, 'invalid', validUserAddress);
+
+      expect(result.ok).toBe(false);
+    });
+
+    it('should return error for invalid user address', async () => {
+      await service.initialize();
+
+      const result = await service.encryptBool(true, validContractAddress, 'invalid');
+
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  describe('initialize', () => {
+    it('should not reinitialize if already initialized', async () => {
+      await service.initialize();
+      await service.initialize();
+
+      expect(service.isInitialized()).toBe(true);
+    });
   });
 });
